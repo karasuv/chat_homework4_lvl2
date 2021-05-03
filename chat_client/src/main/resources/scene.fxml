@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="600" prefWidth="800" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.geekbrains.chat.client.src.test.java.MainChatController">
+    <children>
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem text="Item1" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item2" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item3" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item4" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Exit" onAction="#exit"></MenuItem>
+            </Menu>
+            <Menu text="Edit">
+                <MenuItem text="Item1" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item2" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item3" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item4" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item5" onAction="#exit"></MenuItem>
+            </Menu>
+            <Menu text="View">
+                <MenuItem text="Item1" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item2" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item3" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item4" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item5" onAction="#exit"></MenuItem>
+            </Menu>
+            <Menu text="Help">
+                <MenuItem text="Item1" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item2" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Item3" onAction="#mockAction"></MenuItem>
+                <MenuItem text="Help" onAction="#showHelp"></MenuItem>
+                <MenuItem text="About1" onAction="#showAbout"></MenuItem>
+                <MenuItem text="About2" onAction="#showAbout2"></MenuItem>
+            </Menu>
+        </MenuBar>
+        <HBox VBox.vgrow="ALWAYS">
+            <TextArea fx:id="chatArea" editable="false" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                <HBox.margin>
+                    <Insets right="5.0" left="5.0"/>
+                </HBox.margin>
+            </TextArea>
+
+
+
+            <ListView fx:id="onlineUsers" prefWidth="150.0">
+
+                <HBox.margin>
+                    <Insets left="5.0" right="5.0"/>
+                </HBox.margin>
+            </ListView>
+            <padding>
+                <Insets bottom="5.0"  top="5.0"/>
+            </padding>
+
+        </HBox>
+        <HBox >
+            <TextField fx:id="inputField" prefHeight="70.0" HBox.hgrow="ALWAYS"  onAction="#sendMessage" >
+                <HBox.margin>
+                    <Insets right="5.0" left="5.0"/>
+                </HBox.margin>
+<font>
+<Font size="24.0"/>
+</font>
+            </TextField>
+
+            <Button fx:id="btnSendMessage" onAction="#sendMessage"  prefWidth="150.0" prefHeight="70.0" text="SEND">
+                <HBox.margin>
+                    <Insets left="5.0" right="5.0"/>
+                </HBox.margin>
+            </Button>
+
+            <padding>
+                <Insets bottom="5.0" top="5.0"/>
+            </padding>
+        </HBox>
+
+
+    </children>
+</VBox>
