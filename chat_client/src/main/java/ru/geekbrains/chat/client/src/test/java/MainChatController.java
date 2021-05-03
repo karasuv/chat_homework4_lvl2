@@ -35,14 +35,12 @@ public class MainChatController {
 
     public void showAbout(ActionEvent actionEvent) {
 
+        //тут возник вопрос  : использование средств Swing внутри  fx   это нормально или не желательно?
 
-//        Dialog dialog = new Dialog(300,300,);
-//                dialog.setTitle("information about chat");
-//                dialog.show();
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4,1));
+        panel.setLayout(new GridLayout(3,1));
         JLabel info = new JLabel("Some information about chat ");
         JLabel info1 = new JLabel("Version 1.0");
         JLabel info2 = new JLabel("Created by geekbrain with student ");
@@ -63,6 +61,9 @@ public class MainChatController {
     public void showAbout2(ActionEvent actionEvent) {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        //Alert alert = new Alert (Alert.AlertType.NONE);
+        // не успел разобраться почему-то  при типе  Alert.AlertType.NONE окно не закрывается
+
         alert.setTitle("Information ");
 
         alert.setContentText("");
