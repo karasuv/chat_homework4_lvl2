@@ -2,28 +2,44 @@ package ru.geekbrains.chat.client.src.test.java;
 
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import ru.geekbrains.april_chat.common.ChatMessage;
+import ru.geekbrains.april_chat.common.MessageType;
+import ru.geekbrains.april_chat.network.ChatMessageService;
+import ru.geekbrains.april_chat.network.ChatMessageServiceImpl;
+import ru.geekbrains.april_chat.network.MessageProcessor;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class MainChatController {
+public class MainChatController implements Initializable, MessageProcessor {
 
 
     public TextArea chatArea;
     public ListView onlineUsers;
     public TextField inputField;
+    public PasswordField passwordField;
+    public Button btnSendAuth;
+
     public Button btnSendMessage;
+    public TextField loginField;
+
+    private ChatMessageService messageService;
+    private String currentName;
 
     public void mockAction(ActionEvent actionEvent) {
         System.out.println("MOCK!");
@@ -82,16 +98,78 @@ public class MainChatController {
     }
 
     public void sendMessage(ActionEvent actionEvent) {
-        appendTextFromTF();
-    }
-
-    private void appendTextFromTF() {
-        String msg = inputField.getText();
-        if (msg.isEmpty()) return;
-
-
-        chatArea.appendText("ME: " + msg + System.lineSeparator());
-//        chatArea.set
+        String text = inputField.getText();
+        if(text.isEmpty()) return;
+        ChatMessage msg = new ChatMessage();
+        msg.setMessageType(MessageType.PUBLIC);
+        msg.setFrom(currentName);
+        msg.setBody(text);
+        messageService.send(msg.marshall());
         inputField.clear();
+
     }
+
+    private void appendTextFromTF(ChatMessage msg) {
+     //   String msg = inputField.getText();
+     //   if (msg.isEmpty()) return;
+        String text = String.format("[%s] %s\n", msg.getFrom(),msg.getBody());
+
+
+        chatArea.appendText(text);
+//        chatArea.set
+    //    inputField.clear();
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.messageService = new ChatMessageServiceImpl("localhost",12256,this);
+        messageService.connect();
+    }
+
+    @Override
+    public void processMessage(String msg) {
+        ChatMessage message = ChatMessage.unmarshall(msg);
+        System.out.println("Received message");
+
+        switch (message.getMessageType()){
+            case PUBLIC: {
+                appendTextFromTF(message);
+                break;
+            }
+            case CLIENT_LIST:{
+                refreshOnlineUsers(message);
+                break;
+            }
+            case AUTH_CONFIRM: {
+                    this.currentName = message.getBody();
+                    App.stage1.setTitle(currentName);
+                break;
+            }
+
+
+
+
+        }
+
+
+    }
+    private void sendAuth (){
+            String log = loginField.getText();
+            String pass = passwordField.getText();
+            if(log.isEmpty()|| pass.isEmpty()) return;
+            ChatMessage msg = new ChatMessage();
+            msg.setMessageType(MessageType.SEND_AUTH);
+            msg.setLogin(log);
+            msg.setPassword(pass);
+            messageService.send(msg.marshall());
+    }
+
+    private void refreshOnlineUsers(ChatMessage message) {
+        this.onlineUsers.setItems(FXCollections.observableArrayList(message.getOnlineUsers()));
+
+    }
+    public void sendAuth(ActionEvent actionEvent) {
+
+    }
+
 }

@@ -38,6 +38,12 @@
                 <MenuItem text="About2" onAction="#showAbout2"></MenuItem>
             </Menu>
         </MenuBar>
+        <HBox>
+            <TextField fx:id="loginField"/>
+            <PasswordField fx:id="passwordField"/>
+            <Button fx:id="btnSendAuth" text="log in" onAction="#sendAuth"/>
+        </HBox>
+
         <HBox VBox.vgrow="ALWAYS">
             <TextArea fx:id="chatArea" editable="false" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                 <HBox.margin>

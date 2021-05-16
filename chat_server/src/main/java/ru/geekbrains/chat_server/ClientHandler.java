@@ -1,17 +1,21 @@
 package ru.geekbrains.chat_server;
 
+import ru.geekbrains.april_chat.common.ChatMessage;
+import ru.geekbrains.april_chat.common.MessageType;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
 public class ClientHandler {
-    static int clientCounter = 0;
-    private  int clientNumber;
+//    static int clientCounter = 0;
+//    private  int clientNumber;
     private Socket socket;
     private DataOutputStream outputStream;
     private DataInputStream inputStream;
     private ChatServer chatServer;
+    private String currentUsername;
 
 
     public ClientHandler(Socket socket, ChatServer chatServer) {
@@ -21,7 +25,7 @@ public class ClientHandler {
             this.socket = socket;
             this.inputStream = new DataInputStream( socket.getInputStream());
             this.outputStream = new DataOutputStream( socket.getOutputStream());
-            this.clientNumber= ++clientCounter;
+           // this.clientNumber= ++clientCounter;
             System.out.println("Client handler created!!!");
         } catch (IOException e) {
             e.printStackTrace();
@@ -32,10 +36,14 @@ public class ClientHandler {
     public void handle(){
         new Thread(() -> {
             try {
-                while (!Thread.currentThread().isInterrupted()||socket.isConnected()){
-                    String msg = inputStream.readUTF();
-                    System.out.printf("client #%d: %s\n", this.clientNumber,msg);
-                }
+              //  while (!Thread.currentThread().isInterrupted() ){
+
+                    authenticate();
+                    readMessages();
+
+
+
+               // }
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -43,4 +51,87 @@ public class ClientHandler {
         }).start();
     }
 
+    private void readMessages() throws IOException {
+        try {
+            while(Thread.currentThread().isInterrupted()|| socket.isConnected()) {
+                String msg = inputStream.readUTF();
+                ChatMessage message = ChatMessage.unmarshall(msg);
+                message.setFrom(this.currentUsername);
+                switch (message.getMessageType()) {
+                    case PUBLIC: {
+                        chatServer.sendBroadcastMessage(message);
+                        break;
+                    }
+
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            closeHandler();
+        }
+
+    }
+
+    public void sendMessage(ChatMessage message) {
+        try {
+            outputStream.writeUTF(message.marshall());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getCurrentName() {
+
+        return this.currentUsername;
+    }
+
+    private void authenticate(){
+
+        System.out.println("Started client aoth...");
+
+        try {
+            while (true) {
+                String authMessage = inputStream.readUTF();
+                System.out.println("Auth received");
+                ChatMessage msg = ChatMessage.unmarshall(authMessage);
+                String username = chatServer.getAuthService().getUsernameByLoginAndPassword(msg.getLogin(),msg.getPassword());
+
+                ChatMessage response = new ChatMessage();
+                if  (username == null) {
+                    response.setMessageType(MessageType.ERROR);
+                    response.setBody("Wrong username or password!");
+                    System.out.println("Wrong credentials");
+                } else if (chatServer.isUserOnline(username)) {
+                    response.setMessageType(MessageType.ERROR);
+                    response.setBody("Double auth!");
+                    System.out.println("Double auth");
+                } else {
+                    response.setMessageType(MessageType.AUTH_CONFIRM);
+                    response.setBody(username);
+                    currentUsername = username;
+                    chatServer.subscribe(this);
+                    System.out.println("Subscribed");
+                    sendMessage(response);
+                    break;
+                }
+                sendMessage(response);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+    private void closeHandler(){
+        try {
+            chatServer.unsubscribe(this);
+            socket.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public String getCurrentUsername() {
+        return currentUsername;
+    }
 }

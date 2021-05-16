@@ -15,6 +15,9 @@ public class App extends Application {
         launch(args);
     }
 
+    public static Stage stage1;
+
+
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader();
@@ -24,8 +27,9 @@ public class App extends Application {
         Scene scene = new Scene(root);
 
         stage.setScene(scene);
-       // stage.setAlwaysOnTop(true);
+       stage.setAlwaysOnTop(true);
         stage.setTitle("Chat");
+        stage1 = stage;
         stage.show();
     }
 }
